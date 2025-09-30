@@ -40,12 +40,12 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/auth/register", "/auth/login").permitAll()
 
-                    .requestMatchers(HttpMethod.GET, "/courses/**").hasAnyRole("USER", "ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/courses/**").hasAnyRole("STUDENT", "INSTRUCTOR", "ADMIN")
 
-                    .requestMatchers(HttpMethod.POST, "/courses/**").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.PUT, "/courses/**").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.DELETE, "/courses/**").hasRole("ADMIN")
-
+                    .requestMatchers(HttpMethod.POST, "/courses/**").hasAnyRole("INSTRUCTOR", "ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/courses/**").hasAnyRole("INSTRUCTOR", "ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/courses/**").hasAnyRole("INSTRUCTOR", "ADMIN")
+                                   
                     .anyRequest().authenticated()
             )
             .sessionManagement(session -> session
