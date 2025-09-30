@@ -45,7 +45,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.POST, "/courses/**").hasAnyRole("INSTRUCTOR", "ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/courses/**").hasAnyRole("INSTRUCTOR", "ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/courses/**").hasAnyRole("INSTRUCTOR", "ADMIN")
-                    
+                                   
                     .anyRequest().authenticated()
             )
             .sessionManagement(session -> session
