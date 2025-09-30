@@ -1,6 +1,5 @@
 package com.kampuskor.restservice;
 
-import org.springframework.boot.autoconfigure.graphql.GraphQlProperties.Http;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -41,11 +40,11 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/auth/register", "/auth/login").permitAll()
 
-                    .requestMatchers(HttpMethod.GET, "/courses/**").hasAnyRole("USER", "ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/courses/**").hasAnyRole("STUDENT", "INSTRUCTOR", "ADMIN")
 
-                    .requestMatchers(HttpMethod.POST, "/courses/**").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.PUT, "/courses/**").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.DELETE, "/courses/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/courses/**").hasAnyRole("INSTRUCTOR", "ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/courses/**").hasAnyRole("INSTRUCTOR", "ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/courses/**").hasAnyRole("INSTRUCTOR", "ADMIN")
                     
                     .anyRequest().authenticated()
             )
