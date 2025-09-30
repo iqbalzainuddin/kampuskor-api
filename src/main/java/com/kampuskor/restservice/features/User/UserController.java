@@ -35,9 +35,9 @@ class UserController {
 
     @GetMapping("/profile")
     private ResponseEntity<ProfileResponse> getUserById(Authentication authentication) {
-        String currentAuthenticatedEmail = authentication.getName();
-        return userRepository.findByEmail(currentAuthenticatedEmail)
-            .map(user -> new ProfileResponse(user.getName(), user.getEmail()))
+        String currentAuthenticatedUsername = authentication.getName();
+        return userRepository.findByUsernameOrEmail(currentAuthenticatedUsername, currentAuthenticatedUsername)
+            .map(user -> new ProfileResponse(user.getName(), user.getUsername(), user.getEmail()))
             .map(ResponseEntity::ok)
             .orElse(ResponseEntity.notFound().build());
     }
@@ -47,6 +47,7 @@ class UserController {
     private ResponseEntity<Void> createUser(@RequestBody RegisterRequest request) {
         User user = new User();
         user.setName(request.getName());
+        user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(user);
@@ -57,7 +58,7 @@ class UserController {
     @ResponseStatus(HttpStatus.OK)
     private ResponseEntity<LoginResponse> loginUser(@RequestBody LoginRequest request) {
         Authentication authenticationRequest = UsernamePasswordAuthenticationToken
-                .unauthenticated(request.getEmail(), request.getPassword());
+                .unauthenticated(request.getUsernameOrEmail(), request.getPassword());
         Authentication authenticationResponse = this.authenticationManager.authenticate(authenticationRequest);
         CustomUserDetails userDetails = (CustomUserDetails) authenticationResponse.getPrincipal();
         if (authenticationResponse.isAuthenticated()) {
