@@ -1,4 +1,4 @@
-package com.kampuskor.restservice.features.User.dto;
+package com.kampuskor.restservice.features.Auth.dto;
 
 public class LoginRequest {
   private String usernameOrEmail;
