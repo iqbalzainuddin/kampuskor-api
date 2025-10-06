@@ -5,8 +5,13 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.kampuskor.restservice.features.User.enums.RoleType;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -28,10 +33,12 @@ public class User {
   @Column(unique = true, nullable = false, length = 50)
   private String email;
   
+  @JsonIgnore
   private String password;
 
-  @Column(name = "role_type", nullable = false, columnDefinition = "char(1) default 'u'")
-  private char roleType = 'u';
+  @Enumerated(EnumType.STRING)
+  @Column(name = "role_type", nullable = false)
+  private RoleType roleType = RoleType.S;
 
   @CreationTimestamp
   @Column(name = "created_at", updatable = false, nullable = false)
@@ -81,11 +88,11 @@ public class User {
     this.password = password;
   }
 
-  public char getRoleType() {
+  public RoleType getRoleType() {
     return roleType;
   }
 
-  public void setRoleType(char roleType) {
+  public void setRoleType(RoleType roleType) {
     this.roleType = roleType;
   }
 
