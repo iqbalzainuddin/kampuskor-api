@@ -12,6 +12,7 @@ import com.kampuskor.restservice.utils.security.JwtUtil;
 
 import jakarta.validation.Valid;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -114,6 +115,19 @@ class AuthController {
         user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
 
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/profile")
+    public ResponseEntity<Void> deleteUser(Authentication authentication) {
+        String currentAuthenticatedUsername = authentication.getName();
+        User user = userRepository.findByUsername(currentAuthenticatedUsername).orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        userRepository.delete(user);
         return ResponseEntity.noContent().build();
     }
 }
