@@ -1,70 +1,112 @@
 package com.kampuskor.restservice.features.User;
 
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.kampuskor.restservice.features.User.dto.*;
-import com.kampuskor.restservice.utils.security.CustomUserDetails;
-import com.kampuskor.restservice.utils.security.JwtUtil;
 
-import org.springframework.web.bind.annotation.GetMapping;
+import jakarta.validation.Valid;
+
+import java.net.URI;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/users")
 class UserController {
-    private final AuthenticationManager authenticationManager;
     private UserRepository userRepository;
     private BCryptPasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtils;
 
-    public UserController(AuthenticationManager authenticationManager, UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, JwtUtil jwtUtils) {
-        this.authenticationManager = authenticationManager;
+    public UserController(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.jwtUtils = jwtUtils;
     }
 
-    @GetMapping("/profile")
-    private ResponseEntity<ProfileResponse> getUserById(Authentication authentication) {
-        String currentAuthenticatedUsername = authentication.getName();
-        return userRepository.findByUsernameOrEmail(currentAuthenticatedUsername, currentAuthenticatedUsername)
-            .map(user -> new ProfileResponse(user.getName(), user.getUsername(), user.getEmail()))
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
-    }
+    @GetMapping
+    private ResponseEntity<UsersResponse> findAllUsers(Pageable pageable) {
+        Page<User> page = userRepository.findAll(
+            PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                pageable.getSortOr(Sort.by(Sort.Direction.ASC, "id"))
+            )
+        );
 
-    @PostMapping("/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    private ResponseEntity<Void> createUser(@RequestBody RegisterRequest request) {
+        UsersResponse response = new UsersResponse(
+            page.getNumber(),
+            page.getNumberOfElements(),
+            page.getTotalPages(),
+            page.getTotalElements(),
+            page.getContent()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+    
+
+    @PostMapping
+    private ResponseEntity<User> createUser(@Valid @RequestBody CreateUserRequest request, UriComponentsBuilder uriBuilder) {
         User user = new User();
+        
         user.setName(request.getName());
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRoleType(request.getRoleType());
+        User savedUser = userRepository.save(user);
+
+        String locationBasePath = switch(savedUser.getRoleType()) {
+            case A -> "admins";
+            case I -> "instructors";
+            case S -> "students";
+        };
+        URI location = uriBuilder
+            .path("/{basePath}/{id}")
+            .buildAndExpand(locationBasePath, savedUser.getId())
+            .toUri();
+        
+        return ResponseEntity.created(location).build();
+    }
+    
+    @PutMapping("/{username}")
+    public ResponseEntity<Void> updateUser(@PathVariable String username, @Valid @RequestBody UpdateUserRequest updateUser) {
+        User user = userRepository.findByUsername(username).orElse(null);
+        
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        user.setName(updateUser.name());
+        user.setUsername(updateUser.username());
+        user.setEmail(updateUser.email());
+        user.setRoleType(updateUser.roleType());
         userRepository.save(user);
-        return ResponseEntity.created(null).build();
+
+        return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/login")
-    @ResponseStatus(HttpStatus.OK)
-    private ResponseEntity<LoginResponse> loginUser(@RequestBody LoginRequest request) {
-        Authentication authenticationRequest = UsernamePasswordAuthenticationToken
-                .unauthenticated(request.getUsernameOrEmail(), request.getPassword());
-        Authentication authenticationResponse = this.authenticationManager.authenticate(authenticationRequest);
-        CustomUserDetails userDetails = (CustomUserDetails) authenticationResponse.getPrincipal();
-        if (authenticationResponse.isAuthenticated()) {
-            String token = jwtUtils.generateToken(userDetails.getUsername());
-            return ResponseEntity.ok(new LoginResponse(token));
+    @DeleteMapping("/{username}")
+    public ResponseEntity<Void> deleteUser(@PathVariable String username) {
+        User user = userRepository.findByUsername(username).orElse(null);
+        
+        if (user == null) {
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        
+        userRepository.delete(user);
+        return ResponseEntity.noContent().build();
     }
 }

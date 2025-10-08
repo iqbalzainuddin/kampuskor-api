@@ -39,12 +39,19 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/auth/register", "/auth/login").permitAll()
-
+                    
                     .requestMatchers(HttpMethod.GET, "/courses/**").hasAnyRole("STUDENT", "INSTRUCTOR", "ADMIN")
-
                     .requestMatchers(HttpMethod.POST, "/courses/**").hasAnyRole("INSTRUCTOR", "ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/courses/**").hasAnyRole("INSTRUCTOR", "ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/courses/**").hasAnyRole("INSTRUCTOR", "ADMIN")
+
+                    .requestMatchers("/users/**").hasRole("ADMIN")
+
+                    .requestMatchers(HttpMethod.GET, "/instructors").hasAnyRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/instructors/{username}").hasAnyRole("STUDENT", "ADMIN")
+
+                    .requestMatchers(HttpMethod.GET, "/students").hasAnyRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/students/{username}").hasAnyRole("INSTRUCTOR", "ADMIN")
                                    
                     .anyRequest().authenticated()
             )
