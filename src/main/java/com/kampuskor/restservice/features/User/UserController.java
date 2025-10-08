@@ -43,6 +43,7 @@ class UserController {
                 pageable.getSortOr(Sort.by(Sort.Direction.ASC, "id"))
             )
         );
+
         UsersResponse response = new UsersResponse(
             page.getNumber(),
             page.getNumberOfElements(),
@@ -50,6 +51,7 @@ class UserController {
             page.getTotalElements(),
             page.getContent()
         );
+
         return ResponseEntity.ok(response);
     }
     
@@ -79,9 +81,19 @@ class UserController {
     }
     
     @PutMapping("/{username}")
-    public String putMethodName(@PathVariable String id, @RequestBody String entity) {
-        //TODO: process PUT request
+    public ResponseEntity<Void> updateUser(@PathVariable String username, @Valid @RequestBody UpdateUserRequest updateUser) {
+        User user = userRepository.findByUsername(username).orElse(null);
         
-        return entity;
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        user.setName(updateUser.name());
+        user.setUsername(updateUser.username());
+        user.setEmail(updateUser.email());
+        user.setRoleType(updateUser.roleType());
+        userRepository.save(user);
+
+        return ResponseEntity.noContent().build();
     }
 }
