@@ -6,6 +6,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.kampuskor.restservice.features.User.dto.*;
 
+import jakarta.validation.Valid;
+
 import java.net.URI;
 
 import org.springframework.data.domain.Page;
@@ -17,6 +19,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
 
 @RestController
 @RequestMapping("/users")
@@ -50,7 +55,7 @@ class UserController {
     
 
     @PostMapping
-    private ResponseEntity<User> createUser(@RequestBody CreateUserRequest request, UriComponentsBuilder uriBuilder) {
+    private ResponseEntity<User> createUser(@Valid @RequestBody CreateUserRequest request, UriComponentsBuilder uriBuilder) {
         User user = new User();
         
         user.setName(request.getName());
@@ -73,4 +78,10 @@ class UserController {
         return ResponseEntity.created(location).build();
     }
     
+    @PutMapping("/{username}")
+    public String putMethodName(@PathVariable String id, @RequestBody String entity) {
+        //TODO: process PUT request
+        
+        return entity;
+    }
 }

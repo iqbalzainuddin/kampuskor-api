@@ -3,13 +3,27 @@ package com.kampuskor.restservice.features.User.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kampuskor.restservice.features.User.enums.RoleType;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+
 public class CreateUserRequest {
+    @NotBlank(message = "Name is required")
     private String name;
+
+    @NotBlank(message = "Username is required")
     private String username;
+
+    @NotBlank(message = "Email is required")
+    @Email(message = "Email should be valid")
     private String email;
+
+    @NotBlank(message = "Password is required")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$", message = "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character")
     private String password;
 
     @JsonProperty("role_type")
+    @NotBlank(message = "Role type is required")
     private RoleType roleType;
 
     public String getName() {

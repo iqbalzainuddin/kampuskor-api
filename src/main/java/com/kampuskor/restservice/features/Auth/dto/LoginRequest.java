@@ -1,22 +1,26 @@
 package com.kampuskor.restservice.features.Auth.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class LoginRequest {
-  private String usernameOrEmail;
-  private String password;
+    @NotBlank(message = "Username or Email is required")
+    private String usernameOrEmail;
+    @NotBlank(message = "Password is required")
+    private String password;
 
-  public String getUsernameOrEmail() {
-      return usernameOrEmail;
-  }
+    public String getUsernameOrEmail() {
+        return usernameOrEmail;
+    }
 
-  public void setUsernameOrEmail(String usernameOrEmail) {
-      this.usernameOrEmail = usernameOrEmail;
-  }
+    public void setUsernameOrEmail(String usernameOrEmail) {
+        this.usernameOrEmail = usernameOrEmail;
+    }
 
-  public String getPassword() {
-      return password;
-  }
+    public String getPassword() {
+        return password;
+    }
 
-  public void setPassword(String password) {
-      this.password = password;
-  }
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }
