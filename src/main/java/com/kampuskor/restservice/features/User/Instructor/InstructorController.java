@@ -37,6 +37,7 @@ class InstructorController {
                 pageable.getSortOr(Sort.by(Sort.Direction.ASC, "id"))
             )
         );
+
         UsersResponse response = new UsersResponse(
             page.getNumber(),
             page.getNumberOfElements(),
@@ -44,15 +45,18 @@ class InstructorController {
             page.getTotalElements(),
             page.getContent()
         );
+
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{username}")
     public ResponseEntity<User> getInstructor(@PathVariable String username) {
         Optional<User> user = userRepository.findByUsernameAndRoleType(username, RoleType.I);
+
         if (user.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
+        
         return ResponseEntity.ok(user.get());
     }
     

@@ -44,11 +44,13 @@ class AuthController {
     @ResponseStatus(HttpStatus.CREATED)
     private ResponseEntity<Void> createUser(@Valid @RequestBody RegisterRequest request) {
         User user = new User();
+
         user.setName(request.getName());
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(user);
+
         return ResponseEntity.created(null).build();
     }
 
@@ -59,10 +61,12 @@ class AuthController {
                 .unauthenticated(request.getUsernameOrEmail(), request.getPassword());
         Authentication authenticationResponse = this.authenticationManager.authenticate(authenticationRequest);
         CustomUserDetails userDetails = (CustomUserDetails) authenticationResponse.getPrincipal();
+
         if (authenticationResponse.isAuthenticated()) {
             String token = jwtUtils.generateToken(userDetails.getId());
             return ResponseEntity.ok(new LoginResponse(token));
         }
+        
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
