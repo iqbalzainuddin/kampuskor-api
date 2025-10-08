@@ -23,6 +23,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
 
 
 @RestController
@@ -91,6 +93,25 @@ class AuthController {
         user.setName(userUpdate.name());
         user.setUsername(userUpdate.username());
         user.setEmail(userUpdate.email());
+        userRepository.save(user);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/password/change")
+    public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordRequest request, Authentication authentication) {
+        String currentAuthenticatedUsername = authentication.getName();
+        User user = userRepository.findByUsername(currentAuthenticatedUsername).orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (!passwordEncoder.matches(request.oldPassword(), user.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
 
         return ResponseEntity.noContent().build();
