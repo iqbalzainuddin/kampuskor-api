@@ -36,6 +36,7 @@ public class User {
   @JsonIgnore
   private String password;
 
+  @JsonIgnore
   @Enumerated(EnumType.STRING)
   @Column(name = "role_type", nullable = false)
   private RoleType roleType = RoleType.S;
