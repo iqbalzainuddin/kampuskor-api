@@ -39,9 +39,17 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/auth/register", "/auth/login").permitAll()
+
+                    .requestMatchers(HttpMethod.GET, "/courses/me").hasRole("INSTRUCTOR")
+                    .requestMatchers(HttpMethod.GET, "/courses/me/{courseId}/students").hasRole("INSTRUCTOR")
+
+                    .requestMatchers(HttpMethod.POST, "/courses/{courseId}/enroll").hasRole("STUDENT")
+                    .requestMatchers(HttpMethod.DELETE, "/courses/{courseId}/unenroll").hasRole("STUDENT")
+                    .requestMatchers(HttpMethod.GET, "/courses/me/enrolled").hasRole("STUDENT")
                     
-                    .requestMatchers(HttpMethod.GET, "/courses/**").hasAnyRole("STUDENT", "INSTRUCTOR", "ADMIN")
-                    .requestMatchers(HttpMethod.POST, "/courses/**").hasAnyRole("INSTRUCTOR", "ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/courses").hasAnyRole("STUDENT", "INSTRUCTOR", "ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/courses/{courseId}").hasAnyRole("STUDENT", "INSTRUCTOR", "ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/courses").hasAnyRole("INSTRUCTOR", "ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/courses/**").hasAnyRole("INSTRUCTOR", "ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/courses/**").hasAnyRole("INSTRUCTOR", "ADMIN")
 
