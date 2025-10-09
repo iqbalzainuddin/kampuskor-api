@@ -78,7 +78,7 @@ class UserController {
             .buildAndExpand(locationBasePath, savedUser.getId())
             .toUri();
         
-        return ResponseEntity.created(location).build();
+        return ResponseEntity.created(location).body(savedUser);
     }
     
     @PutMapping("/{username}")
