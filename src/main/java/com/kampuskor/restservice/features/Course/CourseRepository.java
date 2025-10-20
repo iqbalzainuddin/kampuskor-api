@@ -16,7 +16,10 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     Page<Course> findByInstructor(User instructor, PageRequest pageRequest);
     Page<Course> findByStudents(User student, PageRequest pageRequest);
     Optional<Course> findByIdAndInstructor(Long id, User instructor);
-    
+
+    Boolean existsByIdAndInstructorId(Long id, Long instructorId);
+    Boolean existsByIdAndStudentsId(Long id, Long studentId);
+
     @Query("""
         SELECT s
         FROM Course c 
