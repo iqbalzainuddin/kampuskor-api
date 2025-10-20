@@ -42,6 +42,16 @@ public class SecurityConfig {
 
                     .requestMatchers(HttpMethod.GET, "/courses/me").hasRole("INSTRUCTOR")
                     .requestMatchers(HttpMethod.GET, "/courses/me/{courseId}/students").hasRole("INSTRUCTOR")
+                    
+                    .requestMatchers(HttpMethod.GET, "/courses/{courseId}/sections").hasAnyRole("STUDENT", "INSTRUCTOR", "ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/courses/{courseId}/sections/{sectionId}").hasAnyRole("INSTRUCTOR")
+                    .requestMatchers(HttpMethod.POST, "/courses/{courseId}/sections").hasRole("INSTRUCTOR")
+                    .requestMatchers(HttpMethod.PUT, "/courses/{courseId}/sections/{sectionId}").hasRole("INSTRUCTOR")
+                    .requestMatchers(HttpMethod.DELETE, "/courses/{courseId}/sections/{sectionId}").hasRole("INSTRUCTOR")
+
+                    .requestMatchers(HttpMethod.POST, "/courses/{courseId}/sections/{sectionId}/contents/upload").hasRole("INSTRUCTOR")
+                    .requestMatchers(HttpMethod.GET, "/courses/{courseId}/sections/{sectionId}/contents").hasAnyRole("INSTRUCTOR", "STUDENT")
+                    .requestMatchers(HttpMethod.DELETE, "/courses/{courseId}/sections/{sectionId}/contents/{contentId}").hasRole("INSTRUCTOR")
 
                     .requestMatchers(HttpMethod.POST, "/courses/{courseId}/enroll").hasRole("STUDENT")
                     .requestMatchers(HttpMethod.DELETE, "/courses/{courseId}/unenroll").hasRole("STUDENT")
