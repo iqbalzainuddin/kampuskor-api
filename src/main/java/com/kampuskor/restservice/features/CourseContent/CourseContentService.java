@@ -15,7 +15,6 @@ import com.kampuskor.restservice.features.CourseSection.CourseSectionRepository;
 import com.kampuskor.restservice.features.Storage.GoogleCloud.StorageService;
 import com.kampuskor.restservice.features.User.User;
 import com.kampuskor.restservice.features.User.UserRepository;
-import com.kampuskor.restservice.features.User.enums.RoleType;
 
 @Service
 public class CourseContentService {
