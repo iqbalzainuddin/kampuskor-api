@@ -33,9 +33,10 @@ public class JwtUtil {
   }
 
   // Generate Token
-  public String generateToken(Long id) {
+  public String generateToken(Long id, String role) {
     return Jwts.builder()
       .subject(id.toString())
+      .claim("rt", role)
       .issuedAt(new Date())
       .expiration(new Date(System.currentTimeMillis() + expiration))
       .signWith(getSigningKey())
@@ -45,6 +46,11 @@ public class JwtUtil {
   // Extract Username
   public Long extractId(String token) {
       return Long.parseLong(extractAllClaims(token).getSubject());
+  }
+
+  // Extract Role Type (rt)
+  public String extractRole(String token) {
+    return extractAllClaims(token).get("rt", String.class);
   }
 
   // Validate Token

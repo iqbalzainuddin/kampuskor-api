@@ -63,7 +63,8 @@ class AuthController {
         CustomUserDetails userDetails = (CustomUserDetails) authenticationResponse.getPrincipal();
 
         if (authenticationResponse.isAuthenticated()) {
-            String token = jwtUtils.generateToken(userDetails.getId());
+            String role = userDetails.getAuthorities().iterator().next().toString();
+            String token = jwtUtils.generateToken(userDetails.getId(), role);
             return ResponseEntity.ok(new LoginResponse(token));
         }
         
