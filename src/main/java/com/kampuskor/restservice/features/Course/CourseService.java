@@ -104,6 +104,9 @@ public class CourseService {
 
     @Transactional(readOnly = true)
     public PageResponse<User> getCourseStudents(Long courseId, Pageable pageable, String instructorUsername) {
+        if (!courseRepository.existsById(courseId)) {
+            throw new IllegalArgumentException("Course not found");
+        }
         User instructor = userRepository.findByUsername(instructorUsername)
                 .orElseThrow(() -> new IllegalArgumentException("Instructor not found"));
         Page<User> students = courseRepository.findStudentsByIdAndInstructor(
